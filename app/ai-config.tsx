@@ -263,7 +263,6 @@ export default function AIConfigScreen() {
             <FlatList
               data={modelList}
               keyExtractor={(item) => item}
-              scrollEnabled={false}
               renderItem={({ item }) => (
                 <Pressable
                   style={[styles.modelItem, item === model && styles.modelItemSelected]}
