@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  FlatList,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -260,11 +259,14 @@ export default function AIConfigScreen() {
             <Text style={styles.modelListTitle}>
               可用模型（{modelList.length} 个，点击选择）
             </Text>
-            <FlatList
-              data={modelList}
-              keyExtractor={(item) => item}
-              renderItem={({ item }) => (
+            <ScrollView
+              style={styles.modelListScroll}
+              nestedScrollEnabled
+              keyboardShouldPersistTaps="handled"
+            >
+              {modelList.map((item) => (
                 <Pressable
+                  key={item}
                   style={[styles.modelItem, item === model && styles.modelItemSelected]}
                   onPress={() => setModel(item)}
                 >
@@ -280,8 +282,8 @@ export default function AIConfigScreen() {
                     {item}
                   </Text>
                 </Pressable>
-              )}
-            />
+              ))}
+            </ScrollView>
           </View>
         )}
 
@@ -354,8 +356,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     marginTop: spacing.sm,
-    maxHeight: 220,
   },
+  modelListScroll: { maxHeight: 220 },
   modelListTitle: {
     fontSize: 12,
     color: colors.textMuted,
