@@ -1,6 +1,6 @@
 import { DailyTotals } from '../db/entryRepo';
 import { calcBaselineBurn, KCAL_PER_KG } from './calories';
-import { UserProfile } from './types';
+import { DEFAULT_ACTIVITY_FACTOR, UserProfile } from './types';
 
 export interface DayStat {
   date: string; // YYYY-MM-DD
@@ -14,12 +14,17 @@ export interface DayStat {
 }
 
 /**
- * 把每日聚合数据转成统计明细。baselineBurn 取自当前 profile（与今日页一致），
- * 因此体重变化是「按现在的基础代谢回看历史」的理论值。
+ * 把每日聚合数据转成统计明细。每天的活动系数从 factorByDate 取，
+ * 未记录的天用 DEFAULT_ACTIVITY_FACTOR 兜底，因此各天基础消耗可能不同。
  */
-export function buildDayStats(totals: DailyTotals[], profile: UserProfile): DayStat[] {
-  const baselineBurn = calcBaselineBurn(profile);
+export function buildDayStats(
+  totals: DailyTotals[],
+  profile: UserProfile,
+  factorByDate: Record<string, number>
+): DayStat[] {
   return totals.map((t) => {
+    const factor = factorByDate[t.date] ?? DEFAULT_ACTIVITY_FACTOR;
+    const baselineBurn = calcBaselineBurn(profile, factor);
     const totalBurn = baselineBurn + t.exercise;
     const net = t.intake - totalBurn;
     return {

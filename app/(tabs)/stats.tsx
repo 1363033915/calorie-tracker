@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CalorieBarChart } from '../../src/components/CalorieBarChart';
 import { WeightLineChart } from '../../src/components/WeightLineChart';
+import { getActivityMap } from '../../src/db/dailyActivityRepo';
 import { DailyTotals, listDailyTotals } from '../../src/db/entryRepo';
 import {
   buildDayStats,
@@ -46,7 +47,8 @@ export default function StatsScreen() {
     const range = HISTORY_RANGES[rangeIdx];
     const since = range.days ? sinceDateKey(range.days) : undefined;
     const totals: DailyTotals[] = await listDailyTotals(since);
-    const dayStats = buildDayStats(totals, profile);
+    const factorByDate = await getActivityMap(since);
+    const dayStats = buildDayStats(totals, profile, factorByDate);
     setStats(dayStats);
     setWeights(buildWeightSeries(dayStats, profile.weightKg));
     setLoading(false);

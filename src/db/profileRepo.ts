@@ -6,7 +6,6 @@ interface ProfileRow {
   age: number;
   heightCm: number;
   weightKg: number;
-  activityFactor: number;
   calorieThreshold: number;
 }
 
@@ -19,7 +18,6 @@ export async function getProfile(): Promise<UserProfile | null> {
     age: row.age,
     heightCm: row.heightCm,
     weightKg: row.weightKg,
-    activityFactor: row.activityFactor,
     calorieThreshold: row.calorieThreshold,
   };
 }
@@ -27,15 +25,14 @@ export async function getProfile(): Promise<UserProfile | null> {
 export async function saveProfile(p: UserProfile): Promise<void> {
   const db = await getDb();
   await db.runAsync(
-    `INSERT INTO profile (id, gender, age, heightCm, weightKg, activityFactor, calorieThreshold)
-     VALUES (1, ?, ?, ?, ?, ?, ?)
+    `INSERT INTO profile (id, gender, age, heightCm, weightKg, calorieThreshold)
+     VALUES (1, ?, ?, ?, ?, ?)
      ON CONFLICT(id) DO UPDATE SET
        gender = excluded.gender,
        age = excluded.age,
        heightCm = excluded.heightCm,
        weightKg = excluded.weightKg,
-       activityFactor = excluded.activityFactor,
        calorieThreshold = excluded.calorieThreshold`,
-    [p.gender, p.age, p.heightCm, p.weightKg, p.activityFactor, p.calorieThreshold]
+    [p.gender, p.age, p.heightCm, p.weightKg, p.calorieThreshold]
   );
 }

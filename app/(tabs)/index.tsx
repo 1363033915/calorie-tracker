@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Entry } from '../../src/domain/types';
+import { ACTIVITY_LEVELS, Entry } from '../../src/domain/types';
 import { formatTime } from '../../src/lib/date';
 import { colors, radius, spacing } from '../../src/lib/theme';
 import { useAppStore } from '../../src/store/useAppStore';
@@ -164,6 +164,8 @@ function SummaryCard() {
         </Text>
       </View>
 
+      <ActivityCard />
+
       <View style={styles.card}>
         <Text style={styles.cardTitle}>理论体重变化</Text>
         <Text style={[styles.weightValue, { color: gaining ? colors.intake : colors.exercise }]}>
@@ -173,6 +175,32 @@ function SummaryCard() {
         <Text style={styles.weightHint}>
           基于净热量 {Math.round(summary.net)} kcal ÷ 7700（含基础代谢 {Math.round(summary.baselineBurn)} kcal）
         </Text>
+      </View>
+    </View>
+  );
+}
+
+function ActivityCard() {
+  const activityFactor = useAppStore((s) => s.activityFactor);
+  const setActivityFactor = useAppStore((s) => s.setActivityFactor);
+
+  return (
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>今日活动量</Text>
+      <Text style={styles.activityHint}>按今天的实际活动选择，影响基础消耗与体重推算</Text>
+      <View style={styles.chipsWrap}>
+        {ACTIVITY_LEVELS.map((lv) => {
+          const active = activityFactor === lv.factor;
+          return (
+            <Pressable
+              key={lv.factor}
+              style={[styles.chip, active && styles.chipActive]}
+              onPress={() => setActivityFactor(lv.factor)}
+            >
+              <Text style={[styles.chipText, active && styles.chipTextActive]}>{lv.label}</Text>
+            </Pressable>
+          );
+        })}
       </View>
     </View>
   );
@@ -248,6 +276,18 @@ const styles = StyleSheet.create({
   thresholdText: { fontSize: 12, color: colors.textMuted, marginTop: spacing.sm },
   weightValue: { fontSize: 28, fontWeight: '700' },
   weightHint: { fontSize: 12, color: colors.textMuted, marginTop: spacing.xs },
+  activityHint: { fontSize: 12, color: colors.textMuted, marginTop: -spacing.sm, marginBottom: spacing.md },
+  chipsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  chip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  chipActive: { borderColor: colors.primary, backgroundColor: '#E8F2EF' },
+  chipText: { fontSize: 13, color: colors.textMuted },
+  chipTextActive: { color: colors.primary, fontWeight: '700' },
   listEmpty: { textAlign: 'center', color: colors.textMuted, marginTop: spacing.xl },
   entryRow: {
     flexDirection: 'row',

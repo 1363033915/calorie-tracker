@@ -14,10 +14,11 @@ export function calcBMR(p: Pick<UserProfile, 'gender' | 'age' | 'heightCm' | 'we
 }
 
 /**
- * 每日基础消耗 = BMR × 活动系数（不含刻意运动，运动记录额外叠加）
+ * 每日基础消耗 = BMR × 当日活动系数（不含刻意运动，运动记录额外叠加）。
+ * 活动系数按天单独记录，由调用方传入。
  */
-export function calcBaselineBurn(p: UserProfile): number {
-  return calcBMR(p) * p.activityFactor;
+export function calcBaselineBurn(p: UserProfile, activityFactor: number): number {
+  return calcBMR(p) * activityFactor;
 }
 
 export interface DailySummary {
@@ -31,14 +32,18 @@ export interface DailySummary {
   thresholdRemaining: number; // 距阈值还剩多少（负数表示超出）
 }
 
-export function summarizeDay(entries: Entry[], profile: UserProfile): DailySummary {
+export function summarizeDay(
+  entries: Entry[],
+  profile: UserProfile,
+  activityFactor: number
+): DailySummary {
   let intake = 0;
   let exercise = 0;
   for (const e of entries) {
     if (e.kind === 'intake') intake += e.calories;
     else exercise += e.calories;
   }
-  const baselineBurn = calcBaselineBurn(profile);
+  const baselineBurn = calcBaselineBurn(profile, activityFactor);
   const totalBurn = baselineBurn + exercise;
   const net = intake - totalBurn;
   return {

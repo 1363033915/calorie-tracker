@@ -3,9 +3,10 @@ import { Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getDailyActivity } from '../../src/db/dailyActivityRepo';
 import { listEntriesByDate } from '../../src/db/entryRepo';
 import { DailySummary, summarizeDay } from '../../src/domain/calories';
-import { Entry } from '../../src/domain/types';
+import { DEFAULT_ACTIVITY_FACTOR, Entry } from '../../src/domain/types';
 import { formatTime, weekdayLabel } from '../../src/lib/date';
 import { colors, radius, spacing } from '../../src/lib/theme';
 import { useAppStore } from '../../src/store/useAppStore';
@@ -30,9 +31,10 @@ export default function DayDetailScreen() {
     (async () => {
       if (!date) return;
       const list = await listEntriesByDate(date);
+      const factor = (await getDailyActivity(date)) ?? DEFAULT_ACTIVITY_FACTOR;
       if (!active) return;
       setEntries(list);
-      setSummary(profile ? summarizeDay(list, profile) : null);
+      setSummary(profile ? summarizeDay(list, profile, factor) : null);
       setLoading(false);
     })();
     return () => {

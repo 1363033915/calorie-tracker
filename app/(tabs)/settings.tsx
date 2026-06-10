@@ -18,8 +18,8 @@ import {
   setActiveAIConfig,
 } from '../../src/db/aiConfigRepo';
 import { getUseThirdParty, setUseThirdParty } from '../../src/db/settingsRepo';
-import { calcBMR, calcBaselineBurn } from '../../src/domain/calories';
-import { ACTIVITY_LEVELS, AIConfig, Gender, UserProfile } from '../../src/domain/types';
+import { calcBMR } from '../../src/domain/calories';
+import { AIConfig, Gender, UserProfile } from '../../src/domain/types';
 import { colors, radius, spacing } from '../../src/lib/theme';
 import { useAppStore } from '../../src/store/useAppStore';
 
@@ -33,7 +33,6 @@ export default function SettingsScreen() {
   const [age, setAge] = useState(String(profile?.age ?? ''));
   const [heightCm, setHeightCm] = useState(String(profile?.heightCm ?? ''));
   const [weightKg, setWeightKg] = useState(String(profile?.weightKg ?? ''));
-  const [activityFactor, setActivityFactor] = useState(profile?.activityFactor ?? 1.375);
   const [threshold, setThreshold] = useState(String(profile?.calorieThreshold ?? 2000));
 
   const [configs, setConfigs] = useState<AIConfig[]>([]);
@@ -56,7 +55,6 @@ export default function SettingsScreen() {
       setAge(String(profile.age));
       setHeightCm(String(profile.heightCm));
       setWeightKg(String(profile.weightKg));
-      setActivityFactor(profile.activityFactor);
       setThreshold(String(profile.calorieThreshold));
     }
   }, [profile]);
@@ -71,7 +69,6 @@ export default function SettingsScreen() {
       age: a,
       heightCm: h,
       weightKg: w,
-      activityFactor,
       calorieThreshold: Number(threshold) || 0,
     };
   })();
@@ -90,7 +87,6 @@ export default function SettingsScreen() {
       age: a,
       heightCm: h,
       weightKg: w,
-      activityFactor,
       calorieThreshold: t,
     });
     Alert.alert('已保存', '个人资料已更新');
@@ -154,23 +150,6 @@ export default function SettingsScreen() {
         <Field label="身高（cm）" value={heightCm} onChange={setHeightCm} />
         <Field label="体重（kg）" value={weightKg} onChange={setWeightKg} />
 
-        <Text style={styles.label}>日常活动量（不含刻意运动）</Text>
-        <View style={styles.chipsWrap}>
-          {ACTIVITY_LEVELS.map((lv) => (
-            <Pressable
-              key={lv.factor}
-              style={[styles.chip, activityFactor === lv.factor && styles.chipActive]}
-              onPress={() => setActivityFactor(lv.factor)}
-            >
-              <Text
-                style={[styles.chipText, activityFactor === lv.factor && styles.chipTextActive]}
-              >
-                {lv.label}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-
         <Field label="每日摄入阈值（kcal）" value={threshold} onChange={setThreshold} />
 
         {previewProfile && (
@@ -179,7 +158,7 @@ export default function SettingsScreen() {
               基础代谢 BMR：{Math.round(calcBMR(previewProfile))} kcal/天
             </Text>
             <Text style={styles.bmrText}>
-              每日基础消耗（含活动系数）：{Math.round(calcBaselineBurn(previewProfile))} kcal/天
+              活动量已改为每天在「今日」页单独设置
             </Text>
           </View>
         )}

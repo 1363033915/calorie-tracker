@@ -11,8 +11,6 @@ export interface UserProfile {
   age: number;
   heightCm: number;
   weightKg: number;
-  // 基础活动系数（不含刻意运动，运动单独记录叠加）。详见 ACTIVITY_LEVELS
-  activityFactor: number;
   // 每日摄入卡路里阈值，超过即警告
   calorieThreshold: number;
 }
@@ -51,3 +49,6 @@ export const ACTIVITY_LEVELS: { factor: number; label: string; desc: string }[] 
   { factor: 1.725, label: '高度活动', desc: '每周 6-7 天高强度运动' },
   { factor: 1.9, label: '极高活动', desc: '体力劳动或每天高强度训练' },
 ];
+
+/** 某天未单独设置活动量时的默认系数（轻度活动） */
+export const DEFAULT_ACTIVITY_FACTOR = 1.375;
