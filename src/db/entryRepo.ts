@@ -44,6 +44,29 @@ export async function listEntriesByDate(date: string): Promise<Entry[]> {
   return rows.map(rowToEntry);
 }
 
+export interface DailyTotals {
+  date: string; // YYYY-MM-DD
+  intake: number; // 当日摄入总卡路里
+  exercise: number; // 当日运动消耗总卡路里
+}
+
+/** 按日期聚合每日摄入/运动总量，日期升序。可选只取 sinceDate（含）之后的数据。 */
+export async function listDailyTotals(sinceDate?: string): Promise<DailyTotals[]> {
+  const db = await getDb();
+  const where = sinceDate ? 'WHERE date >= ?' : '';
+  const params = sinceDate ? [sinceDate] : [];
+  return db.getAllAsync<DailyTotals>(
+    `SELECT date,
+            SUM(CASE WHEN kind = 'intake' THEN calories ELSE 0 END) AS intake,
+            SUM(CASE WHEN kind = 'exercise' THEN calories ELSE 0 END) AS exercise
+     FROM entries
+     ${where}
+     GROUP BY date
+     ORDER BY date ASC`,
+    params
+  );
+}
+
 export async function insertEntry(e: Entry): Promise<void> {
   const db = await getDb();
   await db.runAsync(

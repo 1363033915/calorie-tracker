@@ -35,6 +35,10 @@ export default function RootLayout() {
               name="ai-config"
               options={{ presentation: 'modal', headerShown: true, title: 'AI 配置' }}
             />
+            <Stack.Screen
+              name="day/[date]"
+              options={{ headerShown: true, title: '日详情' }}
+            />
           </Stack>
         )}
       </SafeAreaProvider>
